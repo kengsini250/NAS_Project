@@ -14,6 +14,8 @@ SOURCES += \
     download.cpp \
     main.cpp \
     mainwindow.cpp \
+    newuser/newuser.cpp \
+    setting/setting.cpp \
     shell.cpp
 
 HEADERS += \
@@ -21,10 +23,14 @@ HEADERS += \
     SSH.h \
     download.h \
     mainwindow.h \
+    newuser/newuser.h \
+    setting/setting.h \
     shell.h
 
 FORMS += \
-    mainwindow.ui
+    mainwindow.ui \
+    newuser/newuser.ui \
+    setting/setting.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

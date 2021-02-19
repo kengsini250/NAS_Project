@@ -11,6 +11,8 @@
 #include <QDebug>
 
 #include "SSH.h"
+#include "setting/setting.h"
+#include "newuser/newuser.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -25,6 +27,8 @@ public:
     ~MainWindow();
 private:
     SSH* ssh;
+    Setting* setting;
+    NewUser* newuser;
 private:
     Ui::MainWindow *ui;
 };

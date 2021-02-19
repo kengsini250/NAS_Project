@@ -8,8 +8,11 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     ssh = new SSH(this);
+    //new user
+    newuser = new NewUser(this);
+    connect(newuser,&NewUser::send,ssh,&SSH::setHost);
     connect(ui->actionNew,&QAction::triggered,[this]{
-        ssh->init();
+        newuser->show();
     });
 
     connect(ui->actionExit,&QAction::triggered,[this]{
@@ -63,6 +66,13 @@ MainWindow::MainWindow(QWidget *parent)
         });
         menu->exec(QCursor::pos());
         ui->listView->selectionModel()->clear();
+    });
+
+    //setting
+    setting = new Setting(this);
+    connect(setting,&Setting::send,ssh,&SSH::setSavePath);
+    connect(ui->actionproperty,&QAction::triggered,[this]{
+        setting->show();
     });
 }
 

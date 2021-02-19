@@ -42,7 +42,7 @@ void SSH::init()
         emit Exit();
     });
 
-    p->start(shell::ssh,QStringList()<<"oppai@192.168.2.46");
+    p->start(shell::ssh,QStringList()<<host);
     p->waitForStarted();
     write(shell::ls_al);
 }
@@ -75,8 +75,19 @@ void SSH::refresh()
 
 void SSH::download(QString &name)
 {
-    d->setHost("oppai@192.168.2.46");
+    d->setHost(host);
     d->setSource(path,name);
-    d->setTarget("C:\\Users\\kengs\\Desktop\\");
+    d->setTarget(savePath);
     d->download();
+}
+
+void SSH::setHost(const QString &h)
+{
+    host = h;
+    init();
+}
+
+void SSH::setSavePath(const QString &p)
+{
+    savePath = p;
 }
