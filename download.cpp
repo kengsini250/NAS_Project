@@ -38,5 +38,12 @@ void Download::download()
         file.close();
         d->close();
     });
+    emit downloadFinished();
+}
 
+void Download::upload(const QString &p)
+{
+    qDebug()<<"scp -r"<<p<<host+path;
+    d->start("scp",QStringList()<<"-r"<<p<<host+path);
+    emit uploadFinished();
 }

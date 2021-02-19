@@ -16,6 +16,7 @@ public:
 
     static QString Next(QString&);
     static QString NextUpdate(QString&);
+    static QString remove(const QString&);
 };
 
 

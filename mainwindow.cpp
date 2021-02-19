@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    setAcceptDrops(true);
 
     ssh = new SSH(this);
     //new user
@@ -60,9 +61,14 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->listView,&QWidget::customContextMenuRequested,[this]{
         QMenu* menu = new QMenu(ui->listView);
         QAction *actionDownload = menu->addAction("download");
+        QAction *actionDelete = menu->addAction("delete");
         connect(actionDownload,&QAction::triggered,[this]{
             QString name = ui->listView->currentIndex().data().toString();
             ssh->download(name);
+        });
+        connect(actionDelete,&QAction::triggered,[this]{
+            QString name = ui->listView->currentIndex().data().toString();
+            ssh->remove(name);
         });
         menu->exec(QCursor::pos());
         ui->listView->selectionModel()->clear();
@@ -80,5 +86,24 @@ MainWindow::~MainWindow()
 {
     delete ui;
     delete ssh;
+}
+
+void MainWindow::dragEnterEvent(QDragEnterEvent *event)
+{
+    if(event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+    else
+        event->ignore();
+}
+
+void MainWindow::dropEvent(QDropEvent *event)
+{
+    const QMimeData *mimeData = event->mimeData();
+    if(mimeData->hasUrls()){
+        auto allFile = mimeData->urls();
+        for(auto p : allFile){
+            ssh->upload(p.toLocalFile());
+        }
+    }
 }
 

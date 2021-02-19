@@ -7,6 +7,8 @@
 #include <QString>
 #include <QStringList>
 #include <QByteArray>
+#include <QMimeData>
+#include <QDragEnterEvent>
 
 #include <QDebug>
 
@@ -31,5 +33,9 @@ private:
     NewUser* newuser;
 private:
     Ui::MainWindow *ui;
+
+protected:
+    void dragEnterEvent(QDragEnterEvent *event);
+    void dropEvent(QDropEvent *event);
 };
 #endif // MAINWINDOW_H

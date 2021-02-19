@@ -18,3 +18,8 @@ QString shell::NextUpdate(QString& name)
 {
     return QString("cd "+name+And+ls_al);
 }
+
+QString shell::remove(const QString &f)
+{
+    return QString(" rm -r "+f);
+}

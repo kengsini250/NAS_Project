@@ -28,6 +28,8 @@ public slots:
     void download(QString&);
     void setHost(const QString&);
     void setSavePath(const QString&);
+    void upload(const QString&);
+    void remove(const QString&);
 
 private:
     QProcess* p;

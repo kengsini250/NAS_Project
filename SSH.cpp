@@ -45,6 +45,8 @@ void SSH::init()
     p->start(shell::ssh,QStringList()<<host);
     p->waitForStarted();
     write(shell::ls_al);
+
+    connect(d,&Download::uploadFinished,[this]{refresh();});
 }
 
 void SSH::write(const QString &msg)
@@ -90,4 +92,17 @@ void SSH::setHost(const QString &h)
 void SSH::setSavePath(const QString &p)
 {
     savePath = p;
+}
+
+void SSH::upload(const QString &p)
+{
+    d->setHost(host);
+    d->setSource(path,"");
+    d->upload(p);
+}
+
+void SSH::remove(const QString &f)
+{
+    write(shell::remove(f));
+    refresh();
 }

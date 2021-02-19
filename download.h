@@ -21,12 +21,14 @@ public:
     void setHost(QString h);
 
     void download();
+    void upload(const QString&);
 private:
     QString path,name,target,host;
     QString dirflag = "";
     QProcess* d;
 signals:
-
+    void downloadFinished();
+    void uploadFinished();
 };
 
 #endif // DOWNLOAD_H
