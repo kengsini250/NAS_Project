@@ -84,6 +84,8 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if(ssh->isWorking())
+        ssh->myExit();
     delete ui;
     delete ssh;
 }

@@ -36,9 +36,6 @@ void SSH::init()
     connect(p,QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),[=](int exitCode, QProcess::ExitStatus exitStatus){
         Q_UNUSED(exitCode);
         Q_UNUSED(exitStatus);
-        p->write("exit\n");
-        p->waitForFinished();
-        p->close();
         emit Exit();
     });
 
@@ -67,6 +64,8 @@ void SSH::update()
 void SSH::myExit()
 {
     p->write("exit\n");
+    p->waitForFinished();
+    p->close();
     activing = false;
 }
 
