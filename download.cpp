@@ -28,8 +28,11 @@ void Download::setHost(QString h)
 
 void Download::download()
 {
+    emit downloading(name);
     d->start("scp",QStringList()<<"-r"<<host+path<<target);
-
+    d->waitForStarted();
+    emit downloadFinished(name);
+/*
     connect(d,&QProcess::readyReadStandardOutput,[this]{
         QByteArray data = d->readAllStandardOutput();
         QFile file(name);
@@ -38,12 +41,13 @@ void Download::download()
         file.close();
         d->close();
     });
-    emit downloadFinished();
+*/
 }
 
 void Download::upload(const QString &p)
 {
-    qDebug()<<"scp -r"<<p<<host+path;
+    emit uploading(p);
     d->start("scp",QStringList()<<"-r"<<p<<host+path);
-    emit uploadFinished();
+    d->waitForStarted();
+    emit uploadFinished(p);
 }

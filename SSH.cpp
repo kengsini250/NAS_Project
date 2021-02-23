@@ -3,8 +3,10 @@
 
 SSH::~SSH()
 {
-    delete p;
-    delete d;
+    if(!activing){
+        delete p;
+        delete d;
+    }
 }
 
 SSH::SSH(QObject *parent) : QObject(parent)
@@ -16,6 +18,9 @@ SSH::SSH(QObject *parent) : QObject(parent)
 void SSH::init()
 {
     d = new Download(this);
+
+    connect(d,&Download::downloading,this,&SSH::downloading);
+    connect(d,&Download::uploading,this,&SSH::uploading);
 
     connect(p,&QProcess::readyReadStandardError,[this]{
         QByteArray data = p->readAllStandardError();
@@ -43,7 +48,10 @@ void SSH::init()
     p->waitForStarted();
     write(shell::ls_al);
 
-    connect(d,&Download::uploadFinished,[this]{refresh();});
+    connect(d,&Download::uploadFinished,[this](const QString& n){
+        refresh();
+        emit uploadFinished(n);
+    });
 }
 
 void SSH::write(const QString &msg)
@@ -63,15 +71,18 @@ void SSH::update()
 
 void SSH::myExit()
 {
-    p->write("exit\n");
-    p->waitForFinished();
-    p->close();
+    if(isWorking()){
+        p->write("exit\n");
+        p->waitForFinished();
+        p->close();
+    }
     activing = false;
 }
 
 void SSH::refresh()
 {
-    write(shell::ls_al);
+    if(isWorking())
+        write(shell::ls_al);
 }
 
 void SSH::download(QString &name)

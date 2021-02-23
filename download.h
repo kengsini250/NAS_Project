@@ -27,8 +27,10 @@ private:
     QString dirflag = "";
     QProcess* d;
 signals:
-    void downloadFinished();
-    void uploadFinished();
+    void downloading(const QString&);
+    void downloadFinished(const QString&);
+    void uploading(const QString&);
+    void uploadFinished(const QString&);
 };
 
 #endif // DOWNLOAD_H

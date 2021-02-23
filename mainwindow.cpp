@@ -16,16 +16,18 @@ MainWindow::MainWindow(QWidget *parent)
         newuser->show();
     });
 
-    connect(ui->actionExit,&QAction::triggered,[this]{
-        if(ssh->isWorking())
-            ssh->myExit();
-    });
+    connect(ui->actionExit,&QAction::triggered,ssh,&SSH::myExit);
     connect(ssh,&SSH::Exit,this,&QMainWindow::close);
+    connect(ui->actionRefresh,&QAction::triggered,ssh,&SSH::refresh);
 
-    connect(ui->actionRefresh,&QAction::triggered,[this]{
-        if(ssh->isWorking()){
-            ssh->refresh();
-        }
+    connect(ssh,&SSH::downloading,[this](const QString&n){
+        ui->statusbar->showMessage("downloading... "+n);
+    });
+    connect(ssh,&SSH::uploading,[this](const QString&n){
+        ui->statusbar->showMessage("uploading... "+n);
+    });
+    connect(ssh,&SSH::uploadFinished,[this](const QString&n){
+        ui->statusbar->showMessage(n+" finished");
     });
 
     ui->listView->setViewMode(QListView::IconMode);

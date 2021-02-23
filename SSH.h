@@ -18,18 +18,18 @@ public:
     void write(const QString&);
     void updateName(QString&);
     void update();
-    void myExit();
 
     bool isWorking()
     {return activing;}
 
-    void refresh();
 public slots:
     void download(QString&);
     void setHost(const QString&);
     void setSavePath(const QString&);
     void upload(const QString&);
     void remove(const QString&);
+    void refresh();
+    void myExit();
 
 private:
     QProcess* p;
@@ -41,6 +41,11 @@ private:
     bool activing = false;
     void init();
 signals:
+    void uploading(const QString&);
+    void uploadFinished(const QString&);
+    void downloading(const QString&);
+
+
     void updatePath(QString&);
     void sendFormat(const QList<FileFormat>&);
     void Exit();
