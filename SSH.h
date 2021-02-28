@@ -5,8 +5,9 @@
 #include <QFile>
 #include <QStandardPaths>
 #include <QProcess>
+#include <QDebug>
+
 #include "shell.h"
-#include "download.h"
 #include "FileFormat.h"
 
 class SSH : public QObject
@@ -23,10 +24,7 @@ public:
     {return activing;}
 
 public slots:
-    void download(QString&);
-    void setHost(const QString&);
-    void setSavePath(const QString&);
-    void upload(const QString&);
+    void setHost(const User&);
     void remove(const QString&);
     void refresh();
     void myExit();
@@ -34,19 +32,13 @@ public slots:
 private:
     QProcess* p;
     QString path,name;
-    Download* d;
     QString savePath = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation).at(0);
     QString host;
 
     bool activing = false;
     void init();
 signals:
-    void uploading(const QString&);
-    void uploadFinished(const QString&);
-    void downloading(const QString&);
-
-
-    void updatePath(QString&);
+    void updatePath(const QString&);
     void sendFormat(const QList<FileFormat>&);
     void Exit();
 };

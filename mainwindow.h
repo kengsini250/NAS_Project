@@ -13,6 +13,7 @@
 #include <QDebug>
 
 #include "SSH.h"
+#include "HTTP.h"
 #include "setting/setting.h"
 #include "newuser/newuser.h"
 
@@ -29,8 +30,12 @@ public:
     ~MainWindow();
 private:
     SSH* ssh;
+    HTTP* http;
     Setting* setting;
     NewUser* newuser;
+
+    //?
+    QList<FileFormat> currList;
 private:
     Ui::MainWindow *ui;
 

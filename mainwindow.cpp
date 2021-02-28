@@ -9,9 +9,12 @@ MainWindow::MainWindow(QWidget *parent)
     setAcceptDrops(true);
 
     ssh = new SSH(this);
+    http = new HTTP(this);
+
     //new user
     newuser = new NewUser(this);
     connect(newuser,&NewUser::send,ssh,&SSH::setHost);
+    connect(newuser,&NewUser::send,http,&HTTP::setHost);
     connect(ui->actionNew,&QAction::triggered,[this]{
         newuser->show();
     });
@@ -20,25 +23,26 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ssh,&SSH::Exit,this,&QMainWindow::close);
     connect(ui->actionRefresh,&QAction::triggered,ssh,&SSH::refresh);
 
-    connect(ssh,&SSH::downloading,[this](const QString&n){
+    connect(http,&HTTP::downloading,[this](const QString&n){
         ui->statusbar->showMessage("downloading... "+n);
     });
-    connect(ssh,&SSH::uploading,[this](const QString&n){
+    connect(http,&HTTP::uploading,[this](const QString&n){
         ui->statusbar->showMessage("uploading... "+n);
     });
-    connect(ssh,&SSH::uploadFinished,[this](const QString&n){
+    connect(http,&HTTP::uploadFinished,[this](const QString&n){
         ui->statusbar->showMessage(n+" finished");
     });
 
     ui->listView->setViewMode(QListView::IconMode);
     connect(ssh,&SSH::sendFormat,[this](const QList<FileFormat> &data){
+        currList = data;
         QStandardItemModel* fileItem = new QStandardItemModel(this);
         auto p = data.begin();
         while (p != data.end())
         {
             QStandardItem* file = new QStandardItem((*p).getName());
-            if((*p).getType().at(0) == "d"){file->setIcon(QIcon(":/pic/dir.png"));}
-            if((*p).getType().at(0) == "-"){file->setIcon(QIcon(":/pic/file.png"));}
+            if((*p).getType() == FileFormat::DIR){file->setIcon(QIcon(":/pic/dir.png"));}
+            if((*p).getType() == FileFormat::FILE){file->setIcon(QIcon(":/pic/file.png"));}
             fileItem->appendRow(file);
             p++;
         }
@@ -46,9 +50,10 @@ MainWindow::MainWindow(QWidget *parent)
     });
 
     ui->textEdit->setReadOnly(1);
-    connect(ssh,&SSH::updatePath,[this](QString& data){
+    connect(ssh,&SSH::updatePath,[this](const QString& data){
         ui->textEdit->clear();
-        ui->textEdit->append(data);
+        ui->textEdit->append(data.split("\n").at(0));
+        http->setCurrDir(data);
     });
 
     ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -66,7 +71,11 @@ MainWindow::MainWindow(QWidget *parent)
         QAction *actionDelete = menu->addAction("delete");
         connect(actionDownload,&QAction::triggered,[this]{
             QString name = ui->listView->currentIndex().data().toString();
-            ssh->download(name);
+            for(auto p : currList){
+                if(p.getName() == name && p.getName() != ".."&& p.getName() != "."){
+                    http->download(p);
+                }
+            }
         });
         connect(actionDelete,&QAction::triggered,[this]{
             QString name = ui->listView->currentIndex().data().toString();
@@ -78,7 +87,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     //setting
     setting = new Setting(this);
-    connect(setting,&Setting::send,ssh,&SSH::setSavePath);
+    connect(setting,&Setting::send,http,&HTTP::setSavePath);
     connect(ui->actionproperty,&QAction::triggered,[this]{
         setting->show();
     });
@@ -106,7 +115,7 @@ void MainWindow::dropEvent(QDropEvent *event)
     if(mimeData->hasUrls()){
         auto allFile = mimeData->urls();
         for(auto p : allFile){
-            ssh->upload(p.toLocalFile());
+            http->upload(p.toLocalFile());
         }
     }
 }

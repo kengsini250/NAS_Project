@@ -1,11 +1,9 @@
 #include "SSH.h"
 
-
 SSH::~SSH()
 {
     if(!activing){
         delete p;
-        delete d;
     }
 }
 
@@ -17,11 +15,6 @@ SSH::SSH(QObject *parent) : QObject(parent)
 
 void SSH::init()
 {
-    d = new Download(this);
-
-    connect(d,&Download::downloading,this,&SSH::downloading);
-    connect(d,&Download::uploading,this,&SSH::uploading);
-
     connect(p,&QProcess::readyReadStandardError,[this]{
         QByteArray data = p->readAllStandardError();
         qDebug()<<data;
@@ -46,12 +39,8 @@ void SSH::init()
 
     p->start(shell::ssh,QStringList()<<host);
     p->waitForStarted();
+    write(shell::NextUpdate("http"));//same as http
     write(shell::ls_al);
-
-    connect(d,&Download::uploadFinished,[this](const QString& n){
-        refresh();
-        emit uploadFinished(n);
-    });
 }
 
 void SSH::write(const QString &msg)
@@ -85,30 +74,10 @@ void SSH::refresh()
         write(shell::ls_al);
 }
 
-void SSH::download(QString &name)
+void SSH::setHost(const User &h)
 {
-    d->setHost(host);
-    d->setSource(path,name);
-    d->setTarget(savePath);
-    d->download();
-}
-
-void SSH::setHost(const QString &h)
-{
-    host = h;
+    host = h.user+"@"+h.addr;
     init();
-}
-
-void SSH::setSavePath(const QString &p)
-{
-    savePath = p;
-}
-
-void SSH::upload(const QString &p)
-{
-    d->setHost(host);
-    d->setSource(path,"");
-    d->upload(p);
 }
 
 void SSH::remove(const QString &f)

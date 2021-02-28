@@ -2,6 +2,7 @@
 #define NEWUSER_H
 
 #include <QDialog>
+#include "../FileFormat.h"
 
 namespace Ui {
 class NewUser;
@@ -15,7 +16,7 @@ public:
     explicit NewUser(QWidget *parent = nullptr);
     ~NewUser();
 signals:
-    void send(const QString&);
+    void send(const User&);
 private:
     Ui::NewUser *ui;
 };

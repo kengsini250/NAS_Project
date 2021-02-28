@@ -14,8 +14,8 @@ public:
 
     static QString isfile,isdir;
 
-    static QString Next(QString&);
-    static QString NextUpdate(QString&);
+    static QString Next(const QString&);
+    static QString NextUpdate(const QString&);
     static QString remove(const QString&);
 };
 

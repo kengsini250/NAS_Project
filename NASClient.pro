@@ -10,8 +10,9 @@ CONFIG += c++17
 
 SOURCES += \
     FileFormat.cpp \
+    HTTP.cpp \
     SSH.cpp \
-    download.cpp \
+    httpdownload.cpp \
     main.cpp \
     mainwindow.cpp \
     newuser/newuser.cpp \
@@ -20,8 +21,9 @@ SOURCES += \
 
 HEADERS += \
     FileFormat.h \
+    HTTP.h \
     SSH.h \
-    download.h \
+    httpdownload.h \
     mainwindow.h \
     newuser/newuser.h \
     setting/setting.h \

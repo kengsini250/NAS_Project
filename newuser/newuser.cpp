@@ -6,9 +6,10 @@ NewUser::NewUser(QWidget *parent) :
     ui(new Ui::NewUser)
 {
     ui->setupUi(this);
-    ui->lineEdit->setText("oppai@192.168.2.46");
+    ui->user->setText("oppai");
+    ui->address->setText("192.168.2.46");
     connect(ui->buttonBox,&QDialogButtonBox::accepted,[this]{
-        emit send(ui->lineEdit->text());
+        emit send(User{ui->user->text(),ui->address->text()});
     });
 }
 
