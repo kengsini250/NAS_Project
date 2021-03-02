@@ -40,7 +40,8 @@ void SSH::init()
     p->start(shell::ssh,QStringList()<<host);
     p->waitForStarted();
     write(shell::NextUpdate("http"));//same as http
-    write(shell::ls_al);
+    p->waitForReadyRead();
+    refresh();
 }
 
 void SSH::write(const QString &msg)
@@ -70,8 +71,10 @@ void SSH::myExit()
 
 void SSH::refresh()
 {
-    if(isWorking())
+    if(isWorking()){
         write(shell::ls_al);
+        write("pwd");
+    }
 }
 
 void SSH::setHost(const User &h)

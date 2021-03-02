@@ -71,7 +71,7 @@ MainWindow::MainWindow(QWidget *parent)
         QAction *actionDelete = menu->addAction("delete");
         connect(actionDownload,&QAction::triggered,[this]{
             QString name = ui->listView->currentIndex().data().toString();
-            for(auto p : currList){
+            for(auto &p : currList){
                 if(p.getName() == name && p.getName() != ".."&& p.getName() != "."){
                     http->download(p);
                 }
@@ -99,6 +99,7 @@ MainWindow::~MainWindow()
         ssh->myExit();
     delete ui;
     delete ssh;
+    delete http;
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
@@ -114,7 +115,7 @@ void MainWindow::dropEvent(QDropEvent *event)
     const QMimeData *mimeData = event->mimeData();
     if(mimeData->hasUrls()){
         auto allFile = mimeData->urls();
-        for(auto p : allFile){
+        for(auto &p : allFile){
             http->upload(p.toLocalFile());
         }
     }
