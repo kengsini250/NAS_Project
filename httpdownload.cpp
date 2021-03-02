@@ -64,7 +64,7 @@ void HttpDownload::download(const QString &target,const QString &ip)
 
 void HttpDownload::downloadFile(const QString &target,const QString &n)
 {
-    qDebug()<<"download : "<<target;
+//    qDebug()<<"download : "<<target;
     QNetworkAccessManager *m1 = new QNetworkAccessManager(this);
     QNetworkRequest r1;
     r1.setUrl(n);

@@ -2,7 +2,6 @@
 
 HTTP::HTTP(QObject *parent) : QObject(parent)
 {
-    manager = new QNetworkAccessManager(this);
     dir.setCurrent(saveDir);
     d = new HttpDownload(dir);
 }
@@ -10,6 +9,7 @@ HTTP::HTTP(QObject *parent) : QObject(parent)
 void HTTP::setHost(const User &h)
 {
     host="http://"+h.addr;
+    dirmask = "/home/"+h.user+"/http";
 }
 
 void HTTP::setSavePath(const QString &s)
@@ -18,12 +18,24 @@ void HTTP::setSavePath(const QString &s)
     d->setDir(saveDir);
 }
 
+void HTTP::setCurrDir(const QString &d)
+{
+    QString o = d;
+    o=o.remove("\n");
+    currdir = o.mid(dirmask.size());
+}
+
 void HTTP::download(const FileFormat&n)
 {
+    QString name = n.getName();
+    QString target = host+currdir+"/"+name;
+
     if(n.getType() == FileFormat::FILE){
-        d->downloadFile(n.getName(),host+"/"+n.getName()+"/");
+//        qDebug()<<target;
+        d->downloadFile(name,target);
     }
     if(n.getType() == FileFormat::DIR){
-        d->download(n.getName(),host+"/"+n.getName()+"/");
+//        qDebug()<<target+"/";
+        d->download(name,target+"/");
     }
 }
