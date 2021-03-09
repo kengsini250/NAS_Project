@@ -6,35 +6,33 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setAcceptDrops(true);
+}
 
-    ssh = new SSH(this);
-    http = new HTTP(this);
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
 
-    //new user
-    newuser = new NewUser(this);
-    connect(newuser,&NewUser::send,ssh,&SSH::setHost);
-    connect(newuser,&NewUser::send,http,&HTTP::setHost);
-    connect(ui->actionNew,&QAction::triggered,[this]{
-        newuser->show();
+void MainWindow::bind(Presenter *p)
+{
+    this->p = p;
+    mvpInit();
+}
+
+void MainWindow::mvpInit()
+{
+    connect(ui->actionNew,&QAction::triggered,this,[this]{
+        p->newuser_show();
     });
-
-    connect(ui->actionExit,&QAction::triggered,ssh,&SSH::myExit);
-    connect(ssh,&SSH::Exit,this,&QMainWindow::close);
-    connect(ui->actionRefresh,&QAction::triggered,ssh,&SSH::refresh);
-
-    connect(http,&HTTP::downloading,[this](const QString&n){
-        ui->statusbar->showMessage("downloading... "+n);
+    connect(ui->actionproperty,&QAction::triggered,this,[this]{
+        p->setting_show();
     });
-    connect(http,&HTTP::uploading,[this](const QString&n){
-        ui->statusbar->showMessage("uploading... "+n);
-    });
-    connect(http,&HTTP::uploadFinished,[this](const QString&n){
-        ui->statusbar->showMessage(n+" finished");
+    connect(ui->actionExit,&QAction::triggered,this,[this]{
+        p->sshExit();
     });
 
     ui->listView->setViewMode(QListView::IconMode);
-    connect(ssh,&SSH::sendFormat,[this](const QList<FileFormat> &data){
+    connect(p,&Presenter::presenter2mainwindow_sendFormat,this,[this](const QList<FileFormat> &data){
         currList = data;
         QStandardItemModel* fileItem = new QStandardItemModel(this);
         auto p = data.begin();
@@ -49,57 +47,40 @@ MainWindow::MainWindow(QWidget *parent)
         ui->listView->setModel(fileItem);
     });
 
-    ui->textEdit->setReadOnly(1);
-    connect(ssh,&SSH::updatePath,[this](const QString& data){
-        ui->textEdit->clear();
-        ui->textEdit->append(data.split("\n").at(0));
-        http->setCurrDir(data);
-    });
+     ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+     connect(ui->listView,&QListView::doubleClicked,this,[&](QModelIndex index){
+             QString name = index.data().toString();
+             emit mainwindow2presenter_openFile(name);
+             emit mainwindow2presenter_pwd();
+     });
 
-    ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    connect(ui->listView,&QListView::doubleClicked,[&](QModelIndex index){
-        QString name = index.data().toString();
-        ssh->write(shell::NextUpdate(name));
-        ssh->update();
-        ssh->updateName(name);
-    });
+     ui->textEdit->setReadOnly(1);
+     connect(p,&Presenter::presenter2mainwindow_pwd,this,[this](const QString& p){
+         ui->textEdit->clear();
+         ui->textEdit->append(p.split("\n").at(0));
+     });
 
-    ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(ui->listView,&QWidget::customContextMenuRequested,[this]{
-        QMenu* menu = new QMenu(ui->listView);
-        QAction *actionDownload = menu->addAction("download");
-        QAction *actionDelete = menu->addAction("delete");
-        connect(actionDownload,&QAction::triggered,[this]{
-            QString name = ui->listView->currentIndex().data().toString();
-            for(auto &p : currList){
-                if(p.getName() == name && p.getName() != ".."&& p.getName() != "."){
-                    http->download(p);
-                }
-            }
-        });
-        connect(actionDelete,&QAction::triggered,[this]{
-            QString name = ui->listView->currentIndex().data().toString();
-            ssh->remove(name);
-        });
-        menu->exec(QCursor::pos());
-        ui->listView->selectionModel()->clear();
-    });
-
-    //setting
-    setting = new Setting(this);
-    connect(setting,&Setting::send,http,&HTTP::setSavePath);
-    connect(ui->actionproperty,&QAction::triggered,[this]{
-        setting->show();
-    });
-}
-
-MainWindow::~MainWindow()
-{
-    if(ssh->isWorking())
-        ssh->myExit();
-    delete ui;
-    delete ssh;
-    delete http;
+     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
+     connect(ui->listView,&QWidget::customContextMenuRequested,this,[this]{
+         QMenu* menu = new QMenu(ui->listView);
+         QAction *actionDownload = menu->addAction("download");
+         QAction *actionDelete = menu->addAction("delete");
+         connect(actionDownload,&QAction::triggered,this,[this]{
+             QString name = ui->listView->currentIndex().data().toString();
+             for(auto &p : currList){
+                 if(p.getName() == name && p.getName() != ".."&& p.getName() != "."){
+                     emit mainwindow2presenter_setCurrDir(ui->textEdit->toPlainText());
+                     emit mainwindow2presenter_download(p);
+                 }
+             }
+         });
+         connect(actionDelete,&QAction::triggered,this,[this]{
+             QString name = ui->listView->currentIndex().data().toString();
+             emit mainwindow2presenter_remove(name);
+         });
+         menu->exec(QCursor::pos());
+         ui->listView->selectionModel()->clear();
+     });
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
@@ -114,10 +95,12 @@ void MainWindow::dropEvent(QDropEvent *event)
 {
     const QMimeData *mimeData = event->mimeData();
     if(mimeData->hasUrls()){
+        /*
         auto allFile = mimeData->urls();
         for(auto &p : allFile){
             http->upload(p.toLocalFile());
         }
+        */
     }
 }
 

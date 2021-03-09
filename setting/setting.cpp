@@ -7,7 +7,7 @@ Setting::Setting(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->lineEdit->setText("C:\\Users\\kengs\\Desktop\\");
-    connect(ui->buttonBox,&QDialogButtonBox::accepted,[this]{
+    connect(ui->buttonBox,&QDialogButtonBox::accepted,this,[this]{
         emit send(ui->lineEdit->text());
     });
 }
@@ -15,4 +15,9 @@ Setting::Setting(QWidget *parent) :
 Setting::~Setting()
 {
     delete ui;
+}
+
+void Setting::bind(Presenter *p)
+{
+    this->p = p;
 }

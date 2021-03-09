@@ -6,6 +6,11 @@ HTTP::HTTP(QObject *parent) : QObject(parent)
     d = new HttpDownload(dir);
 }
 
+void HTTP::bind(Presenter *p)
+{
+    this->p=p;
+}
+
 void HTTP::setHost(const User &h)
 {
     host="http://"+h.addr;
@@ -31,11 +36,9 @@ void HTTP::download(const FileFormat&n)
     QString target = host+currdir+"/"+name;
 
     if(n.getType() == FileFormat::FILE){
-//        qDebug()<<target;
         d->downloadFile(name,target);
     }
     if(n.getType() == FileFormat::DIR){
-//        qDebug()<<target+"/";
         d->download(name,target+"/");
     }
 }

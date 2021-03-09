@@ -9,13 +9,10 @@
 #include <QByteArray>
 #include <QMimeData>
 #include <QDragEnterEvent>
-
 #include <QDebug>
 
-#include "SSH.h"
-#include "HTTP.h"
-#include "setting/setting.h"
-#include "newuser/newuser.h"
+#include "FileFormat.h"
+#include "presenter.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -28,17 +25,21 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-private:
-    SSH* ssh;
-    HTTP* http;
-    Setting* setting;
-    NewUser* newuser;
+    void bind(Presenter* p);
 
-    //?
-    QList<FileFormat> currList;
+signals:
+    void mainwindow2presenter_pwd();
+    void mainwindow2presenter_openFile(const QString&);
+
+    void mainwindow2presenter_setCurrDir(const QString&);
+    void mainwindow2presenter_download(const FileFormat&);
+    void mainwindow2presenter_remove(const QString&);
 private:
     Ui::MainWindow *ui;
+    QList<FileFormat> currList;
+    Presenter* p;
 
+    void mvpInit();
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
     void dropEvent(QDropEvent *event);

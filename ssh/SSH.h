@@ -7,6 +7,7 @@
 #include <QProcess>
 #include <QDebug>
 
+#include "../presenter.h"
 #include "shell.h"
 #include "FileFormat.h"
 
@@ -16,21 +17,23 @@ class SSH : public QObject
 public:
     ~SSH();
     SSH(QObject *ptr = nullptr);
+    void bind(Presenter* p);
     void write(const QString&);
-    void updateName(QString&);
-    void update();
 
     bool isWorking()
     {return activing;}
 
 public slots:
+    void cd(const QString&);
+    void pwd();
     void setHost(const User&);
     void remove(const QString&);
     void refresh();
     void myExit();
 
 private:
-    QProcess* p;
+    Presenter* p;
+    QProcess* proc;
     QString path,name;
     QString savePath = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation).at(0);
     QString host;
@@ -38,9 +41,8 @@ private:
     bool activing = false;
     void init();
 signals:
-    void updatePath(const QString&);
-    void sendFormat(const QList<FileFormat>&);
-    void Exit();
+    void ssh2presenter_pwd(const QString&);
+    void ssh2presenter_sendFormat(const QList<FileFormat>&);
 };
 
 #endif // SSH_H

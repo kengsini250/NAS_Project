@@ -8,7 +8,7 @@ NewUser::NewUser(QWidget *parent) :
     ui->setupUi(this);
     ui->user->setText("oppai");
     ui->address->setText("192.168.2.46");
-    connect(ui->buttonBox,&QDialogButtonBox::accepted,[this]{
+    connect(ui->buttonBox,&QDialogButtonBox::accepted,this,[this]{
         emit send(User{ui->user->text(),ui->address->text()});
     });
 }
@@ -16,4 +16,9 @@ NewUser::NewUser(QWidget *parent) :
 NewUser::~NewUser()
 {
     delete ui;
+}
+
+void NewUser::bind(Presenter *p)
+{
+    this->p=p;
 }

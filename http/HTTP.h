@@ -13,23 +13,22 @@
 
 #include "FileFormat.h"
 #include "httpdownload.h"
-
-#include <QRegularExpression>
-#include <QRegularExpressionMatch>
-#include <QRegularExpressionMatchIterator>
+#include "../presenter.h"
 
 class HTTP : public QObject
 {
     Q_OBJECT
 public:
-    explicit HTTP(QObject *parent = nullptr);
-    void setHost(const User&);
+    HTTP(QObject *parent = nullptr);
+    void bind(Presenter*);
 public slots:
+    void setHost(const User&);
     void setSavePath(const QString&);
     void setCurrDir(const QString&);
     void download(const FileFormat&);
     void upload(const QString&){}
 private:
+    Presenter* p;
     QString host,currdir,dirmask;
 //    QString saveDir = QStandardPaths::standardLocations(QStandardPaths::DownloadLocation).at(0);
     QString saveDir = "C:\\Users\\kengs\\Desktop\\";
@@ -37,7 +36,6 @@ private:
     bool activing=false;
     QDir dir;
     HttpDownload *d;
-
 signals:
     void httpGetFinished(const QStringList&);
     void uploading(const QString&);
