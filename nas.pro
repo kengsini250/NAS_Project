@@ -34,7 +34,7 @@ HEADERS += \
     ssh/shell.h
 
 FORMS += \
-    downloadqueue.ui \
+    http/downloadqueue.ui \
     mainwindow.ui \
     newuser/newuser.ui \
     setting/setting.ui
