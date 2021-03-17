@@ -6,6 +6,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    dqInit();
 }
 
 MainWindow::~MainWindow()
@@ -17,6 +18,20 @@ void MainWindow::bind(Presenter *p)
 {
     this->p = p;
     mvpInit();
+}
+
+void MainWindow::dqInit()
+{
+    QMainWindow::setMouseTracking(true);
+    QMainWindow::centralWidget()->setMouseTracking(true);
+    dq = new DownloadQueue(this);
+    dq->setSize(width()-200,height());
+    dq->move(width(),0);
+    dq->show();
+
+    animation = new QPropertyAnimation(dq,"geometry");
+    animation->setDuration(1000);
+    animation->setEasingCurve(QEasingCurve::InOutQuint);
 }
 
 void MainWindow::mvpInit()
@@ -47,40 +62,57 @@ void MainWindow::mvpInit()
         ui->listView->setModel(fileItem);
     });
 
-     ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-     connect(ui->listView,&QListView::doubleClicked,this,[&](QModelIndex index){
-             QString name = index.data().toString();
-             emit mainwindow2presenter_openFile(name);
-             emit mainwindow2presenter_pwd();
-     });
+    ui->listView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    connect(ui->listView,&QListView::doubleClicked,this,[&](QModelIndex index){
+        QString name = index.data().toString();
+        emit mainwindow2presenter_openFile(name);
+        emit mainwindow2presenter_pwd();
+    });
 
-     ui->textEdit->setReadOnly(1);
-     connect(p,&Presenter::presenter2mainwindow_pwd,this,[this](const QString& p){
-         ui->textEdit->clear();
-         ui->textEdit->append(p.split("\n").at(0));
-     });
+    ui->textEdit->setReadOnly(1);
+    connect(p,&Presenter::presenter2mainwindow_pwd,this,[this](const QString& p){
+        ui->textEdit->clear();
+        ui->textEdit->append(p.split("\n").at(0));
+    });
 
-     ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
-     connect(ui->listView,&QWidget::customContextMenuRequested,this,[this]{
-         QMenu* menu = new QMenu(ui->listView);
-         QAction *actionDownload = menu->addAction("download");
-         QAction *actionDelete = menu->addAction("delete");
-         connect(actionDownload,&QAction::triggered,this,[this]{
-             QString name = ui->listView->currentIndex().data().toString();
-             for(auto &p : currList){
-                 if(p.getName() == name && p.getName() != ".."&& p.getName() != "."){
-                     emit mainwindow2presenter_setCurrDir(ui->textEdit->toPlainText());
-                     emit mainwindow2presenter_download(p);
-                 }
-             }
-         });
-         connect(actionDelete,&QAction::triggered,this,[this]{
-             QString name = ui->listView->currentIndex().data().toString();
-             emit mainwindow2presenter_remove(name);
-         });
-         menu->exec(QCursor::pos());
-         ui->listView->selectionModel()->clear();
-     });
+    ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->listView,&QWidget::customContextMenuRequested,this,[this]{
+        QMenu* menu = new QMenu(ui->listView);
+        QAction *actionDownload = menu->addAction("download");
+        QAction *actionDelete = menu->addAction("delete");
+        connect(actionDownload,&QAction::triggered,this,[this]{
+            QString name = ui->listView->currentIndex().data().toString();
+            for(auto &p : currList){
+                if(p.getName() == name && p.getName() != ".."&& p.getName() != "."){
+                    emit mainwindow2presenter_setCurrDir(ui->textEdit->toPlainText());
+                    emit mainwindow2presenter_download(p);
+                }
+            }
+        });
+        connect(actionDelete,&QAction::triggered,this,[this]{
+            QString name = ui->listView->currentIndex().data().toString();
+            emit mainwindow2presenter_remove(name);
+        });
+        menu->exec(QCursor::pos());
+        ui->listView->selectionModel()->clear();
+    });
+}
+
+void MainWindow::mouseMoveEvent(QMouseEvent *event)
+{
+    if((event->pos().x() > width()-200) ){
+        animation->setStartValue(QRect(width(),0,dq->getWidth(),dq->getHeight()));
+        animation->setEndValue(QRect(width()-dq->getWidth(),0,dq->getWidth(),dq->getHeight()));
+        animation->start();
+        dqFlag = true;
+    }else{
+        if(dqFlag){
+            animation->setStartValue(QRect(width()-dq->getWidth(),0,dq->getWidth(),dq->getHeight()));
+            animation->setEndValue(QRect(width(),0,dq->getWidth(),dq->getHeight()));
+            animation->start();
+            dqFlag = false;
+        }
+    }
 }
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)

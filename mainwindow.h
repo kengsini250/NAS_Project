@@ -9,9 +9,12 @@
 #include <QByteArray>
 #include <QMimeData>
 #include <QDragEnterEvent>
+#include <QPropertyAnimation>
+#include <QMouseEvent>
 #include <QDebug>
 
 #include "FileFormat.h"
+#include "http/downloadqueue.h"
 #include "presenter.h"
 
 QT_BEGIN_NAMESPACE
@@ -39,9 +42,15 @@ private:
     QList<FileFormat> currList;
     Presenter* p;
 
+    DownloadQueue *dq;
+    QPropertyAnimation *animation;
+    bool dqFlag = false;
+
+    void dqInit();
     void mvpInit();
 protected:
-    void dragEnterEvent(QDragEnterEvent *event);
-    void dropEvent(QDropEvent *event);
+    void mouseMoveEvent(QMouseEvent *event)override;
+    void dragEnterEvent(QDragEnterEvent *event)override;
+    void dropEvent(QDropEvent *event)override;
 };
 #endif // MAINWINDOW_H

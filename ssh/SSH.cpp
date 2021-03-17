@@ -39,14 +39,13 @@ void SSH::init()
     connect(proc,QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),[=](int exitCode, QProcess::ExitStatus exitStatus){
         Q_UNUSED(exitCode);
         Q_UNUSED(exitStatus);
-        emit Exit();
     });
 
     proc->start(shell::ssh,QStringList()<<host);
-    proc->waitForStarted();
-    write(shell::NextUpdate("http"));//same as http
-    proc->waitForReadyRead();
-    refresh();
+    if(proc->waitForStarted()){
+        write(shell::NextUpdate("http"));//same as http
+        refresh();
+    }
 }
 
 void SSH::write(const QString &msg)
@@ -66,7 +65,7 @@ void SSH::pwd()
         write("pwd");
 }
 
-void SSH::myExit()
+bool SSH::myExit()
 {
     if(isWorking()){
         proc->write("exit\n");
@@ -74,6 +73,7 @@ void SSH::myExit()
         proc->close();
     }
     activing = false;
+    return true;
 }
 
 void SSH::refresh()

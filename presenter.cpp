@@ -34,6 +34,17 @@ Presenter::Presenter(QObject *parent) : QObject(parent)
     connect(ssh,&SSH::ssh2presenter_pwd,this,[this](const QString& p){
         emit presenter2mainwindow_pwd(p);
     });
+    //setting
+    connect(setting,&Setting::send,http,&HTTP::setSavePath);
+}
+
+Presenter::~Presenter()
+{
+    delete newUser;
+    delete setting;
+    delete ssh;
+    delete http;
+    delete mainWindow;
 }
 
 void Presenter::show()
@@ -51,7 +62,7 @@ void Presenter::setting_show()
     setting->show();
 }
 
-void Presenter::sshExit()
+bool Presenter::sshExit()
 {
-    ssh->myExit();
+    return ssh->myExit();
 }

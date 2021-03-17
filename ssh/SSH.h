@@ -29,7 +29,7 @@ public slots:
     void setHost(const User&);
     void remove(const QString&);
     void refresh();
-    void myExit();
+    bool myExit();
 
 private:
     Presenter* p;

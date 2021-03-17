@@ -15,10 +15,11 @@ class Presenter : public QObject
     Q_OBJECT
 public:
     Presenter(QObject *parent = nullptr);
+    ~Presenter();
     void show();
     void newuser_show();
     void setting_show();
-    void sshExit();
+    bool sshExit();
 signals:
     //2mainwindow
     void presenter2mainwindow_sendFormat(const QList<FileFormat>&);

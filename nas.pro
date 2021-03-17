@@ -10,6 +10,7 @@ CONFIG += c++11
 
 SOURCES += \
     FileFormat.cpp \
+    http/downloadqueue.cpp \
     http/http.cpp \
     http/httpdownload.cpp \
     main.cpp \
@@ -22,6 +23,7 @@ SOURCES += \
 
 HEADERS += \
     FileFormat.h \
+    http/downloadqueue.h \
     http/HTTP.h \
     http/httpdownload.h \
     mainwindow.h \
@@ -32,6 +34,7 @@ HEADERS += \
     ssh/shell.h
 
 FORMS += \
+    downloadqueue.ui \
     mainwindow.ui \
     newuser/newuser.ui \
     setting/setting.ui
